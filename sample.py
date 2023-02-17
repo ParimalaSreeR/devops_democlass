@@ -31,6 +31,7 @@ def lambda_handler(event, context):
 
     def final_status():
         res = "Exception raised while performing Disaster Recovery on  DBInstance with Error"
+        print(res)
         publish_to_sns(f"""
             Automated Email From AWS SNS
             
@@ -51,7 +52,7 @@ for each in F1:
     users = each.split(",")
     New_F1.append(users)
 
-print(New_F1)
+
 #Append the Values into New list to sort it out
 for each in New_F1:
     F2.append(sorted(each))
