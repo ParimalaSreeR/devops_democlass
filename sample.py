@@ -133,7 +133,7 @@ def add_hosts_entry(smt_server):
     with open('/etc/hosts', 'a') as hosts_file:
         hosts_file.write(smt_hosts_entry_comment)
         hosts_file.write(entry)
-    logging.info('Modified /etc/hosts, added: %s' % entry)
+    print('Modified /etc/hosts, added: %s' % entry)
 
 
 # ----------------------------------------------------------------------------
@@ -277,7 +277,7 @@ def fetch_smt_data(cfg, proxies, quiet=False):
     if cfg.has_option('server', 'metadata_server'):
         metadata_url = cfg.get('server', 'metadata_server')
         msg = 'Using metadata server "%s" to obtain SMT information'
-        logging.info(msg % metadata_url)
+        print(msg % metadata_url)
         try:
             response = requests.get(
                 metadata_url,
@@ -310,7 +310,7 @@ def fetch_smt_data(cfg, proxies, quiet=False):
     else:
         # Get the API to use
         api = cfg.get('server', 'api')
-        logging.info('Using API: %s' % api)
+        print('Using API: %s' % api)
         # Add regionserver arguments
         api = add_region_server_args_to_URL(api, cfg)
         # Get the location of the cert files for the region servers
@@ -371,16 +371,16 @@ def fetch_smt_data(cfg, proxies, quiet=False):
             request_timeout = 15/retry_cnt
             retry_timeout = int(20/retry_cnt)
             if not quiet:
-                logging.info(
+                print(
                     'Getting update server information, attempt %d' % retry_cnt
                 )
             for srv in region_servers:
                 srvName = str(srv)
                 if not quiet:
-                    logging.info('\tUsing region server: %s' % srvName)
+                    print('\tUsing region server: %s' % srvName)
                 certFile = cert_dir + '/' + srvName + '.pem'
                 if not os.path.isfile(certFile):
-                    logging.info(
+                    print(
                         '\tNo cert found: %s skip this server' % certFile
                     )
                     continue
@@ -418,7 +418,7 @@ def fetch_smt_data(cfg, proxies, quiet=False):
                 # No message on the last go around
                 if attempt + 1 < max_attempts:
                     log_msg = 'Waiting %d seconds before next attempt'
-                    logging.info(log_msg % retry_timeout)
+                    print(log_msg % retry_timeout)
                     time.sleep(retry_timeout)
         else:
             err_msg = 'Request not answered by any server '
@@ -589,7 +589,7 @@ def get_credentials_file(update_server, service_name=None):
     for entry in credential_names:
         cred_files = glob.glob(credentials_loc + entry)
         if not cred_files:
-            logging.info('No credentials entry for "%s"' % entry)
+            print('No credentials entry for "%s"' % entry)
             continue
         if len(cred_files) > 1:
             logging.warning(
@@ -780,7 +780,7 @@ def get_smt(cache_refreshed=None):
         if is_registered(current_smt.get_FQDN()):
             alive = current_smt.is_responsive()
             if alive:
-                logging.info(
+                print(
                     'Current update server will be used: '
                     '"%s"' % str(
                         (current_smt.get_ipv4(), current_smt.get_ipv6())
@@ -798,9 +798,9 @@ def get_smt(cache_refreshed=None):
                 for delay in [5, 3, 1]:
                     time.sleep(delay)
                     msg = 'Waiting for current server to show up for %d s'
-                    logging.info(msg % delay)
+                    print(msg % delay)
                     if current_smt.is_responsive():
-                        logging.info(
+                        print(
                             'No failover needed, system access recovered'
                         )
                         return current_smt
@@ -818,7 +818,7 @@ def get_smt(cache_refreshed=None):
                     available_servers
                 )
                 if new_target:
-                    logging.info(
+                    print(
                         'Using equivalent update server: '
                         '"%s"' % str(
                             (new_target.get_ipv4(), new_target.get_ipv6())
@@ -850,7 +850,7 @@ def get_smt(cache_refreshed=None):
         for server in available_servers:
             if server.is_responsive():
                 import_smt_cert(server)
-                logging.info(
+                print(
                     'Found alternate update server: '
                     '"%s"' % str((server.get_ipv4(), server.get_ipv6()))
                 )
@@ -949,7 +949,7 @@ def has_ipv6_access(smt):
        address and it can be accessed over IPv6"""
     if not smt.get_ipv6():
         return False
-    logging.info('Attempt to access update server over IPv6')
+    print('Attempt to access update server over IPv6')
     protocol = 'http'  # Default for backward compatibility
     if https_only(get_config()):
         protocol = 'https'
@@ -961,7 +961,7 @@ def has_ipv6_access(smt):
             verify=False
         )
     except Exception:
-        logging.info('Update server not reachable over IPv6')
+        print('Update server not reachable over IPv6')
         return False
     if cert_res and cert_res.status_code == 200:
         return True
@@ -973,14 +973,14 @@ def has_nvidia_support():
     try:
         pci_info, errors = exec_subprocess(['lspci'], True)
     except TypeError:
-        logging.info(
+        print(
             'lspci command not found, instance Nvidia support cannot '
             'be determined'
         )
         return False
 
     if 'NVIDIA' in pci_info.decode():
-        logging.info('Instance has Nvidia support')
+        print('Instance has Nvidia support')
         return True
 
     return False
@@ -1142,8 +1142,8 @@ def is_registration_supported(cfg):
     try:
         package_backend = cfg.get('service', 'packageBackend')
         if package_backend == 'dnf':
-            logging.info('Registration for RHEL product family requested')
-            logging.info('Exit after repository server hosts entry setup')
+            print('Registration for RHEL product family requested')
+            print('Exit after repository server hosts entry setup')
             registration_supported = False
 
         return registration_supported
@@ -1208,9 +1208,9 @@ def set_proxy():
         # If the environment variables exist all external functions used
         # by the registration code will honor them, thus we can tell the
         # client that we didn't do anything, which also happens to be true
-        logging.info('Using proxy settings from execution environment')
-        logging.info('\thttp_proxy: %s' % existing_http_proxy)
-        logging.info('\thttps_proxy: %s' % existing_https_proxy)
+        print('Using proxy settings from execution environment')
+        print('\thttp_proxy: %s' % existing_http_proxy)
+        print('\thttps_proxy: %s' % existing_https_proxy)
         return False
     proxy_config_file = '/etc/sysconfig/proxy'
     if not os.path.exists(proxy_config_file):
@@ -1305,13 +1305,13 @@ def remove_registration_data():
     user, password = get_credentials('/etc/zypp/credentials.d/SCCcredentials')
     if not user:
         if not is_new_registration():
-            logging.info('No credentials, nothing to do server side')
+            print('No credentials, nothing to do server side')
         return
     auth_creds = HTTPBasicAuth(user, password)
     if os.path.exists(smt_data_file):
         smt = get_smt_from_store(smt_data_file)
         smt_ips = (smt.get_ipv4(), smt.get_ipv6())
-        logging.info('Clean current registration server: %s' % str(smt_ips))
+        print('Clean current registration server: %s' % str(smt_ips))
         server_name = smt.get_FQDN()
         domain_name = smt.get_domain_name()
         try:
@@ -1319,35 +1319,35 @@ def remove_registration_data():
                 'https://%s/connect/systems' % server_name, auth=auth_creds
             )
             if response.status_code == 204:
-                logging.info(
+                print(
                     'System successfully removed from update infrastructure'
                 )
             else:
                 rmt_check_msg = 'System unknown to update infrastructure, '
                 rmt_check_msg += 'continue with local changes'
-                logging.info(rmt_check_msg)
+                print(rmt_check_msg)
         except requests.exceptions.RequestException as e:
             logging.warning('Unable to remove client registration from server')
             logging.warning(e)
-            logging.info('Continue with local artifact removal')
+            print('Continue with local artifact removal')
         clean_hosts_file(domain_name)
         __remove_repo_artifacts(server_name)
         os.unlink(smt_data_file)
     if is_scc_connected():
-        logging.info('Removing system from SCC')
+        print('Removing system from SCC')
         try:
             response = requests.delete(
                 'https://scc.suse.com/connect/systems', auth=auth_creds
             )
             if response.status_code == 204:
-                logging.info('System successfully removed from SCC')
+                print('System successfully removed from SCC')
             else:
                 scc_check_msg = 'System not found in SCC. The system may still'
                 scc_check_msg += ' be tracked against your subscription. It is'
                 scc_check_msg += ' recommended to investigate the issue. '
                 scc_check_msg += 'System user name: "%s". '
                 scc_check_msg += 'Local registration artifacts removed.'
-                logging.info(scc_check_msg % user)
+                print(scc_check_msg % user)
         except requests.exceptions.RequestException as e:
             scc_except_msg = 'Unable to remove client registration from SCC. '
             scc_except_msg += 'The system is most likely still tracked against'
@@ -1359,7 +1359,7 @@ def remove_registration_data():
             logging.warning(e)
         __remove_repo_artifacts('suse.com')
     else:
-        logging.info('No current registration server set.')
+        print('No current registration server set.')
 
 
 # ----------------------------------------------------------------------------
@@ -1375,7 +1375,7 @@ def start_logging():
     try:
         logging.basicConfig(
             filename=log_filename,
-            level=logging.INFO,
+            level=print,
             format='%(asctime)s %(levelname)s:%(message)s'
         )
     except IOError:
@@ -1410,7 +1410,7 @@ def switch_smt_service(smt):
 # ----------------------------------------------------------------------------
 def update_ca_chain(cmd_w_args_lst):
     """Update the CA chain using the given command with arguments"""
-    logging.info('Updating CA certificates: %s' % cmd_w_args_lst[0])
+    print('Updating CA certificates: %s' % cmd_w_args_lst[0])
     retry_attempts = 3
     for attempt in range(retry_attempts):
         if exec_subprocess(cmd_w_args_lst):
@@ -1437,7 +1437,7 @@ def update_rmt_cert(server):
             'http_proxy': os.environ.get('http_proxy'),
             'https_proxy': os.environ.get('https_proxy')
         }
-    logging.info('Check for cert update')
+    print('Check for cert update')
     region_rmt_server_data = fetch_smt_data(get_config(), proxies, True)
     region_rmt_servers = []
     for child in region_rmt_server_data:
@@ -1448,9 +1448,9 @@ def update_rmt_cert(server):
         if (region_ipv4 == target_ipv4) and (region_ipv6 == target_ipv6):
             if region_rmt_server != server:
                 import_smt_cert(region_rmt_server)
-                logging.info('Update server cert updated')
+                print('Update server cert updated')
                 return True
-    logging.info('No cert change')
+    print('No cert change')
     return False
 
 
@@ -1537,7 +1537,7 @@ def __get_region_server_args(plugin):
             retry_cnt += 1
             time.sleep(1)
             continue
-        logging.info('Region server arguments: ?%s' % region_srv_args)
+        print('Region server arguments: ?%s' % region_srv_args)
         break
 
     return region_srv_args
@@ -1601,7 +1601,7 @@ def __populate_srv_cache():
             'https_proxy': os.environ.get('https_proxy')
         }
     cfg = get_config()
-    logging.info('Populating server cache')
+    print('Populating server cache')
     region_smt_data = fetch_smt_data(cfg, proxies, True)
     cnt = 1
     for child in region_smt_data:
@@ -1622,7 +1622,7 @@ def __remove_credentials(smt_server_name):
     system_credentials = glob.glob('/etc/zypp/credentials.d/*')
     for system_credential in system_credentials:
         if os.path.basename(system_credential) in referenced_credentials:
-            logging.info('Removing credentials: %s' % system_credential)
+            print('Removing credentials: %s' % system_credential)
             os.unlink(system_credential)
 
     return 1
@@ -1655,7 +1655,7 @@ def __remove_repos(smt_server_name):
                         'plugin:/susecloud' in url or
                         'plugin:susecloud' in url
                 ):
-                    logging.info(
+                    print(
                         'Removing repo: %s' % os.path.basename(repo_file)
                     )
                     os.unlink(repo_file)
@@ -1677,7 +1677,7 @@ def __remove_service(smt_server_name):
                         'plugin:/susecloud' in url or
                         'plugin:susecloud' in url
                 ):
-                    logging.info('Removing service: %s'
+                    print('Removing service: %s'
                                  % os.path.basename(service_file))
                     os.unlink(service_file)
 
