@@ -1,17 +1,17 @@
-# input1 = input("Enter your First Input : ")
-# input2 = input("Enter your Second Input : ")
-# output1 = []
-# output2 = []
-# for each in input1:
-#     if each not in input2:
-#         output1.append(each)
-# for each in input2:
-#     if each not in input1:
-#         output2.append(each)
-#
-# print("Output1 where characters present in Input1 but not in Input2 : " + ''.join(output1))
-# print("Output2 where characters present in Input2 but not in Input1 : " + ''.join(output2))
-#
+input1 = input("Enter your First Input : ")
+input2 = input("Enter your Second Input : ")
+output1 = []
+output2 = []
+for each in input1:
+    if each not in input2:
+        output1.append(each)
+for each in input2:
+    if each not in input1:
+        output2.append(each)
+
+print("Output1 where characters present in Input1 but not in Input2 : " + ''.join(output1))
+print("Output2 where characters present in Input2 but not in Input1 : " + ''.join(output2))
+
 
 import json
 import boto3
@@ -45,6 +45,7 @@ def lambda_handler(event, context):
 
 import itertools
 F1 = ["u1,u2", "u3,u5", "u3,u7", "u2,u1", "u7,u3", "u9,u2", "u8,u1"]
+print(F1)
 New_F1 = []
 F2 = []
 #Preparing list of lists
@@ -56,10 +57,12 @@ for each in F1:
 #Append the Values into New list to sort it out
 for each in New_F1:
     F2.append(sorted(each))
+    print(F2)
 
 #remove Duplicates4
 F2.sort()
 print("Unique List : " + str(list(k for k,_ in itertools.groupby(F2))))
+print("completed")
 
 
 
