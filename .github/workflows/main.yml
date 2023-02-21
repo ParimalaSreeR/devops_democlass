@@ -1,0 +1,12 @@
+on:
+  push
+
+jobs:
+  my-job:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: My Action
+        run: |
+          # Use GITHUB_TOKEN to run the `dispatch` action
+          echo "An issue was closed and a dispatch event was triggered!"
